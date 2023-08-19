@@ -4,6 +4,9 @@ tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+// Socket.io setup
+const socket = io('http://localhost:2000');
+
 // This function creates an <iframe> (and YouTube player)
 // after the API code downloads.
 var player;
@@ -17,68 +20,77 @@ function onYouTubeIframeAPIReady() {
         playerVars: {
           'controls': 0,
           'showinfo': 0,
-          'playsinline': 1
+          'playsinline': 0
         },
         events: {
           'onStateChange': onPlayerStateChange,
         }
     });
 
-    // Set up the timeline input element
     timeline = document.getElementById('timeline');
-    setInterval(updateTimeLine, 1000); //update every second
-
-    function updateTimeLine(){
-      if(player){
-        const currentTime = player.getCurrentTime();
-        const duration = player.getDuration();
-        const percentage = (currentTime / duration) * 100;
-        timeline.value = percentage;
-      }
-    }
-
     timeline.addEventListener('input', function () {
       const percentage = timeline.value;
       const duration = player.getDuration();
       const seekTime = (percentage / 100) * duration;
       player.seekTo(seekTime);
+      socket.emit('seek', seekTime);
     });
 }
 
+// Adding event listeners
+document.getElementById('play-btn').addEventListener('click', () => {
+  player.playVideo();
+  socket.emit('play');
+});
+
+document.getElementById('pause-btn').addEventListener('click', () => {
+  player.pauseVideo();
+  socket.emit('pause');
+});
+
+socket.on('play', () => {
+  player.playVideo();
+});
+
+socket.on('pause', () => {
+  player.pauseVideo();
+});
+
+socket.on('seek', (seekTime) => {
+  player.seekTo(seekTime);
+});
+
+
 var done = false;
 function onPlayerStateChange(event) { 
-    if (event.data == YT.PlayerState.PLAYING && !done) {
-        done = true;
+    if (event.data === YT.PlayerState.PLAYING) {
+      socket.emit('play');
+    }
+    else if(event.data === YT.PlayerState.PAUSED){
+      socket.emit('pause');
     }
 }
 
-// Socket.io setup
-const socket = io('http://localhost:2000');
+// //functions for video playbacks
+// function playVideo(){
+//   player.playVideo();
+//   socket.emit('play', {action: 'play'});
+// }
 
-// Adding event listeners
-document.getElementById('play-btn').addEventListener('click', playButton);
-document.getElementById('pause-btn').addEventListener('click', pauseButton);
+// function pauseVideo(){
+//   player.pauseVideo();
+//   socket.emit('pause', {action: 'pause'});
+// }
+
+// // Listen for Socket.IO events
+// socket.on('play', () => {
+//   player.playVideo();
+// });
+
+// socket.on('pause', () => {
+//   player.pauseVideo();
+// });
 
 
-// Define playButton function
-function playButton() {
-    player.playVideo();
-    socket.emit('playEvent', {action: 'play'});
-}
 
-// Define pauseButton function
-function pauseButton() {
-    player.pauseVideo();
-    socket.emit('playEvent', {action: 'pause'});
-}
-
-// Socket event handler for synchronization
-socket.on('playEvent', function (data) {
-    if (data.action === 'play') {
-      player.playVideo();
-    } 
-    else if (data.action === 'pause') {
-      player.pauseVideo();
-    }
-});
 

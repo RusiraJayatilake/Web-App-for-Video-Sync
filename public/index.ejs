@@ -9,20 +9,20 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     </head>
     <body>
-        <div class="container mt-5">
+        <div id="video-container">
             <h1>YouTube Media Player</h1>
-
             <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
             <div id="player"></div>
-            <div class="playerControls">
-                <button id="play-btn" type="button" class="btn btn-primary">Play</button>
-                <button id="pause-btn" type="button" class="btn btn-primary">Pause</button>
+            <div id="controls">
+                <div class="action-buttons">
+                    <button id="play-btn" class="btn btn-primary">Play</button>
+                    <button id="pause-btn" class="btn btn-primary">Pause</button>
+                </div>
                 <input type="range" id="timeline">
             </div>
             
         </div>
-        
-        
+
         <!-- Include the socket.io library -->
         <script src="https://cdn.socket.io/4.5.1/socket.io.js"></script>
         <script src="/js/client.js"></script>

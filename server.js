@@ -1,7 +1,6 @@
 const express = require('express');
 const socketIO = require('socket.io');
 const http = require('http');
-// const {v4: uuidv4} = require('uuid');
 
 const app = express();
 const server = http.createServer(app);
@@ -20,25 +19,25 @@ app.get('/', (req, res) => {
 });
 
 
-//socket.io
-let clients = [];
-
 io.on('connection', (socket) => {
-  clients.push(socket);
+  console.log('A client connected');
 
-  socket.on('playEvent', function(data){
-    console.log(data);
-    // Broadcast the data to all connected clients except the sender
-    io.emit('playEvent', data);
+  socket.on('play', () => {
+    socket.broadcast.emit('play');
+  });
+
+  socket.on('pause', () => {
+    socket.broadcast.emit('pause');
+  });
+
+  socket.on('seek', (time) => {
+    socket.broadcast.emit('seek', time);
   });
 
   socket.on('disconnect', () => {
-    clients = clients.filter(client => client != socket);
-    console.log("Client disconnected");
+    console.log('A client disconnected');
   });
-
-  console.log("client connected to the server");
-
+  
 });
 
 
@@ -48,14 +47,6 @@ server.listen(PORT, () => {
 });
 
 
-//created random url 
-// app.get("/", (req, res) => {
-//   res.redirect(`/${uuidv4()}`);
-// });
-
-// app.get('/:video', (req, res) => {
-//   res.render('index', {videoID: req.param.video});
-// });
 
 
 
