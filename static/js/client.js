@@ -71,26 +71,6 @@ function onPlayerStateChange(event) {
     }
 }
 
-// //functions for video playbacks
-// function playVideo(){
-//   player.playVideo();
-//   socket.emit('play', {action: 'play'});
-// }
-
-// function pauseVideo(){
-//   player.pauseVideo();
-//   socket.emit('pause', {action: 'pause'});
-// }
-
-// // Listen for Socket.IO events
-// socket.on('play', () => {
-//   player.playVideo();
-// });
-
-// socket.on('pause', () => {
-//   player.pauseVideo();
-// });
-
 
 
 
